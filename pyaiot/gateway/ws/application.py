@@ -35,7 +35,7 @@ import uuid
 from tornado import gen, web, websocket
 from tornado.websocket import websocket_connect
 
-from pyaiot.common.auth import auth_token
+from pyaiot.common.auth import auth_token, DEFAULT_KEY_FILENAME
 from pyaiot.common.messaging import Message
 
 logger = logging.getLogger("pyaiot.gw.ws")
@@ -80,6 +80,13 @@ class WebsocketNodeHandler(websocket.WebSocketHandler):
 
 class WebsocketGatewayApplication(web.Application):
     """Tornado based gateway application for websocket nodes on a network."""
+
+    settings = [
+        {'name': 'broker_port', 'default': 8000, 'help': 'Broker websocket port'},
+        {'name': 'broker_host', 'default': 'localhost', 'help': 'Broker hostname'},
+        {'name': 'gateway_port', 'default': 8001, 'help': "Node gateway websocket port"},
+        {'name': 'key_file', 'default': DEFAULT_KEY_FILENAME, 'help': "Secret and private keys filename."}
+    ]
 
     def __init__(self, keys, options=None):
         assert options

@@ -28,3 +28,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 __version__ = "0.2.1-dev0"
+
+global_settings = [
+        {'name': 'debug', 'default': False, 'help': "Enable debug mode."},
+        {'name': 'config', 'default': 'config.py', 'help': "Config file"}
+    ]

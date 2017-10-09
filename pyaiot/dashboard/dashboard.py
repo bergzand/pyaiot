@@ -39,7 +39,9 @@ import tornado
 from tornado import web
 from tornado.options import define, options
 
-from pyaiot.common.helpers import start_application
+from pyaiot import global_settings
+from pyaiot.common.auth import DEFAULT_KEY_FILENAME
+from pyaiot.common.helpers import start_application, define_options
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)14s - '
@@ -63,6 +65,20 @@ class DashboardHandler(web.RequestHandler):
 class IoTDashboardApplication(web.Application):
     """Tornado based web application providing an IoT Dashboard."""
 
+    settings = [
+        {'name': 'static_path', 'default': os.path.join(os.path.dirname(__file__), "static"),
+         'help': 'Static files path (containing npm package.json file)'},
+        {'name': 'web_port', 'default': 8080, 'help': 'Web application HTTP port'},
+        {'name': 'broker_port', 'default': 8000, 'help': 'Broker websocket port'},
+        {'name': 'broker_host', 'default': 'localhost', 'help': 'Broker hostname'},
+        {'name': 'broker_ssl', 'type': bool, 'default': False, 'help': 'Supply the broker websocket with ssl'},
+        {'name': 'key_file', 'default': DEFAULT_KEY_FILENAME, 'help': "Secret and private keys filename."},
+        {'name': 'camera_url', 'default': None, 'help': "Default camera url"},
+        {'name': 'title', 'default': "IoT Dashboard", 'help': "Dashboard title"},
+        {'name': 'logo', 'default': None, 'help': "URL for a logo in the dashboard navbar"},
+        {'name': "favicon", 'default': None, 'help': "Favicon url for your dashboard site"}
+    ]
+
     def __init__(self):
         self._nodes = {}
         if options.debug:
@@ -84,39 +100,7 @@ class IoTDashboardApplication(web.Application):
 
 def parse_command_line():
     """Parse command line arguments for IoT broker application."""
-    if not hasattr(options, "config"):
-        define("config", default='config.py', help="Config file")
-    if not hasattr(options, "static_path"):
-        define("static_path",
-               default=os.path.join(os.path.dirname(__file__), "static"),
-               help="Static files path (containing npm package.json file)")
-    if not hasattr(options, "port"):
-        define("web_port", default=8080,
-               help="Web application HTTP port")
-    if not hasattr(options, "broker_port"):
-        define("broker_port", default=8000,
-               help="Broker port")
-    if not hasattr(options, "broker_host"):
-        define("broker_host", default="localhost",
-               help="Broker hostname")
-    if not hasattr(options, "broker_ssl"):
-        define("broker_ssl", type=bool, default=False,
-               help="Supply the broker websocket with ssl")
-    if not hasattr(options, "camera_url"):
-        define("camera_url", default=None,
-               help="Default camera url")
-    if not hasattr(options, "title"):
-        define("title", default="IoT Dashboard",
-               help="Dashboard title")
-    if not hasattr(options, "logo"):
-        define("logo", default=None,
-               help="URL for a logo in the dashboard navbar")
-    if not hasattr(options, "favicon"):
-        define("favicon", default=None,
-               help="Favicon url for your dashboard site")
-    if not hasattr(options, "debug"):
-        define("debug", default=False,
-               help="Enable debug mode.")
+    define_options(IoTDashboardApplication.settings + global_settings)
     options.parse_command_line()
     if options.config:
         options.parse_config_file(options.config)

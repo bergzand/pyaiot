@@ -33,7 +33,7 @@ import uuid
 import logging
 from tornado import gen, web, websocket
 
-from pyaiot.common.auth import verify_auth_token
+from pyaiot.common.auth import verify_auth_token, DEFAULT_KEY_FILENAME
 from pyaiot.common.messaging import Message
 
 logger = logging.getLogger("pyaiot.broker")
@@ -117,6 +117,12 @@ class BrokerWebsocketClientHandler(websocket.WebSocketHandler):
 
 class BrokerApplication(web.Application):
     """Tornado based web application providing live nodes on a network."""
+
+    # Broker specific config options, Check tornado.options.define for these fields
+    settings = [
+        {'name': 'broker_port', 'default': 8000, 'help': "Broker websocket port"},
+        {'name': 'key_file', 'default': DEFAULT_KEY_FILENAME, 'help': "Secret and private keys filename."}
+    ]
 
     def __init__(self, keys, options=None):
         assert options

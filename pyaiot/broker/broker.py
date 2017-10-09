@@ -33,8 +33,9 @@ import sys
 import logging
 from tornado.options import define, options
 
+from pyaiot import global_settings
 from pyaiot.common.auth import check_key_file, DEFAULT_KEY_FILENAME
-from pyaiot.common.helpers import start_application
+from pyaiot.common.helpers import start_application, define_options
 
 from .application import BrokerApplication
 
@@ -46,15 +47,7 @@ logger = logging.getLogger("pyaiot.broker")
 
 def parse_command_line():
     """Parse command line arguments for IoT broker application."""
-    if not hasattr(options, "config"):
-        define("config", default=None, help="Config file")
-    if not hasattr(options, "port"):
-        define("broker_port", default=8000, help="Broker websocket port")
-    if not hasattr(options, "debug"):
-        define("debug", default=False, help="Enable debug mode.")
-    if not hasattr(options, "key_file"):
-        define("key_file", default=DEFAULT_KEY_FILENAME,
-               help="Secret and private keys filename.")
+    define_options(BrokerApplication.settings + global_settings)
     options.parse_command_line()
     if options.config:
         options.parse_config_file(options.config)

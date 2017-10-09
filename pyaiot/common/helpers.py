@@ -4,7 +4,7 @@ import logging
 import signal
 from functools import partial
 import tornado
-
+from tornado import options
 
 def signal_handler(server, app_close, sig, frame):
     """Triggered when a signal is received from system."""
@@ -23,6 +23,10 @@ def signal_handler(server, app_close, sig, frame):
     logging.warning('Caught signal: %s', sig)
     _ioloop.add_callback_from_signal(shutdown)
 
+def define_options(config_settings):
+    for setting in config_settings:
+        if not hasattr(options, setting['name']):
+            options.define(**setting)
 
 def start_application(app, port=None, close_client=False):
     """Start a tornado application."""

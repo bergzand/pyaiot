@@ -34,8 +34,9 @@ import logging
 import tornado.platform.asyncio
 from tornado.options import define, options
 
+from pyaiot import global_settings
 from pyaiot.common.auth import check_key_file, DEFAULT_KEY_FILENAME
-from pyaiot.common.helpers import start_application
+from pyaiot.common.helpers import start_application, define_options
 
 from .application import MQTTGatewayApplication
 from .mqtt import MAX_TIME, MQTT_PORT, MQTT_HOST
@@ -48,24 +49,7 @@ logger = logging.getLogger("pyaiot.gw.mqtt")
 
 def parse_command_line():
     """Parse command line arguments for CoAP gateway application."""
-    if not hasattr(options, "config"):
-        define("config", default='config.py', help="Config file")
-    if not hasattr(options, "broker_host"):
-        define("broker_host", default="localhost", help="Pyaiot broker host")
-    if not hasattr(options, "broker_port"):
-        define("broker_port", default=8000, help="Pyaiot broker port")
-    if not hasattr(options, "mqtt_host"):
-        define("mqtt_host", default=MQTT_HOST, help="Gateway MQTT broker host")
-    if not hasattr(options, "mqtt_port"):
-        define("mqtt_port", default=MQTT_PORT, help="Gateway MQTT broker port")
-    if not hasattr(options, "max_time"):
-        define("max_time", default=MAX_TIME,
-               help="Maximum retention time (in s) for CoAP dead nodes")
-    if not hasattr(options, "key_file"):
-        define("key_file", default=DEFAULT_KEY_FILENAME,
-               help="Secret and private keys filename.")
-    if not hasattr(options, "debug"):
-        define("debug", default=False, help="Enable debug mode.")
+    define_options(MQTTGatewayApplication.settings + global_settings)
     options.parse_command_line()
     if options.config:
         options.parse_config_file(options.config)

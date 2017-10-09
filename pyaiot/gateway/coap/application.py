@@ -35,15 +35,22 @@ from tornado.ioloop import PeriodicCallback
 from tornado import web, gen
 from tornado.websocket import websocket_connect
 
-from pyaiot.common.auth import auth_token
+from pyaiot.common.auth import auth_token, DEFAULT_KEY_FILENAME
 
-from .coap import CoapController
+from .coap import CoapController, MAX_TIME, COAP_PORT
 
 logger = logging.getLogger("pyaiot.gw.coap")
 
 
 class CoapGatewayApplication(web.Application):
     """Tornado based gateway application for CoAP nodes on a network."""
+    settings = [
+        {'name': 'broker_port', 'default': 8000, 'help': 'Broker websocket port'},
+        {'name': 'broker_host', 'default': 'localhost', 'help': 'Broker hostname'},
+        {'name': 'coap_port', 'default': COAP_PORT, 'help': "Gateway CoAP server port"},
+        {'name': 'max_time', 'default': MAX_TIME, 'help': "Maximum retention time (in s) for CoAP dead nodes"},
+        {'name': 'key_file', 'default': DEFAULT_KEY_FILENAME, 'help': "Secret and private keys filename."}
+    ]
 
     def __init__(self, keys, options=None):
         assert options
